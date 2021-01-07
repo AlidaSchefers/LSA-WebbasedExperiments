@@ -95,19 +95,19 @@ function make_slides(f) {
   slides.trial = slide({
     name: "trial",
 
-    start: function() {
-      var stim = {
-        "TGrep": "37224:9",
-        "Context": "Speaker A:  and, and i, you know, i still provide most of the things that  go on around the house.<p>Speaker B: right.<p>Speaker A: so, uh, yeah and for a while i was going to school too, and tha-, it was tough.<p>Speaker B: yeah,  i uh, i think that while it 's a good change for i think women to be able  to fulfill their potential in whatever they feel, you know, their expertise may be .<p>Speaker A: uh-huh.<p>Speaker B: uh-huh.<p>Speaker A: uh, i think sometimes other things suffer and tha-, i think it 's hard to find a balance there.<p>Speaker B: ",
-        "EntireSentence": "but in some ways i think we are expected  to do it all.",
-        "ButNotAllSentence": "but in <strong>some, but not all</strong> ways i think we are expected  to do it all."
-      }    
+    // start: function() {
+    //   var stim = {
+    //     "TGrep": "37224:9",
+    //     "Context": "Speaker A:  and, and i, you know, i still provide most of the things that  go on around the house.<p>Speaker B: right.<p>Speaker A: so, uh, yeah and for a while i was going to school too, and tha-, it was tough.<p>Speaker B: yeah,  i uh, i think that while it 's a good change for i think women to be able  to fulfill their potential in whatever they feel, you know, their expertise may be .<p>Speaker A: uh-huh.<p>Speaker B: uh-huh.<p>Speaker A: uh, i think sometimes other things suffer and tha-, i think it 's hard to find a balance there.<p>Speaker B: ",
+    //     "EntireSentence": "but in some ways i think we are expected  to do it all.",
+    //     "ButNotAllSentence": "but in <strong>some, but not all</strong> ways i think we are expected  to do it all."
+    //   }    
     // The 7 lines above from "start:..." to the end of var stim = {...}" define a placeholder stimulus that you will have to delete when
     // loading in the individual stimulus data. 
 
     // To rotate through stimulus list, comment out the above 7 lines and  uncomment the following 2:
-    // present: exp.stimuli,
-    // present_handle : function(stim) {
+    present: exp.stimuli,
+    present_handle : function(stim) {
 
       // unselect all radio buttons at the beginning of each trial
       // (by default, the selection of the radio persists across trials)
@@ -143,12 +143,12 @@ function make_slides(f) {
 
     // handle click on "Continue" button
     button: function() {
-      this.radio = $("input[name='number']:checked").val();
+      this.radio = $("input[name='number']:checked").val(); //check if any radio button is checked
       this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
       if (this.radio) {
-        this.log_responses();
-        exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
-        // _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
+        this.log_responses(); //records the info 
+        // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli. //just goes to next slide of experiemnt (this time, it's the demographic slide)
+        _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through. keeps going until all of stimuli are used
       } else {
         $('.err').show();
       }
@@ -158,8 +158,8 @@ function make_slides(f) {
     log_responses: function() {
       exp.data_trials.push({
         "id": this.stim.TGrep,
-        // "sentence": this.stim.ButNotAllSentence,
-        // "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
+        "sentence": this.stim.ButNotAllSentence,
+        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker. counts what slide you are currently on.
         "response": this.radio,
         "strangeSentence": this.strange
       });
@@ -196,21 +196,22 @@ function make_slides(f) {
         "subject_information": exp.subj_data,
         "time_in_minutes": (Date.now() - exp.startT) / 60000
       };
-      proliferate.submit(exp.data);
+      proliferate.submit(exp.data); //the command that submits the data to the server and out of control of current experiment
     }
   });
 
   return slides;
 }
+//all the lines above are about the slides
 
 /// initialize experiment
 function init() {
 
   exp.trials = [];
   exp.catch_trials = [];
-  var stimuli = all_stims;
+  var stimuli = all_stims; //stimuli are first defined here. stimuli are simply the list all_stims in the JS file
 
-  exp.stimuli = stimuli; //call _.shuffle(stimuli) to randomize the order;
+  exp.stimuli = _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order of the list.
   exp.n_trials = exp.stimuli.length;
 
   // exp.condition = _.sample(["context", "no-context"]); //can randomize between subjects conditions here
